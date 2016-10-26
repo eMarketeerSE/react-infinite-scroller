@@ -41,6 +41,9 @@ var InfiniteScroll = function (_Component) {
         value: function componentDidMount() {
             this.pageLoaded = this.props.pageStart;
             this.attachScrollListener();
+            if (this.props.initialLoad) {
+                this.props.loadMore(this.pageLoaded);
+            }
         }
     }, {
         key: 'componentWillReceiveProps',
@@ -77,8 +80,6 @@ var InfiniteScroll = function (_Component) {
     }, {
         key: 'scrollListener',
         value: function scrollListener() {
-            var _this2 = this;
-
             var el = _reactDom2.default.findDOMNode(this);
             var scrollEl = window;
 
@@ -94,9 +95,7 @@ var InfiniteScroll = function (_Component) {
                 this.detachScrollListener();
                 // Call loadMore after detachScrollListener to allow for non-async loadMore functions
                 if (typeof this.props.loadMore == 'function') {
-                    setTimeout(function () {
-                        _this2.props.loadMore(_this2.pageLoaded += 1);
-                    }, 10);
+                    this.props.loadMore(this.pageLoaded += 1);
                 }
             }
         }

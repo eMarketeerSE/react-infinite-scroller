@@ -23,13 +23,15 @@ export default class InfiniteScroll extends Component {
 
     constructor(props) {
         super(props);
-
         this.scrollListener = this.scrollListener.bind(this);
     }
 
     componentDidMount() {
         this.pageLoaded = this.props.pageStart;
         this.attachScrollListener();
+        if (this.props.initialLoad) {
+          this.props.loadMore(this.pageLoaded);
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -78,9 +80,7 @@ export default class InfiniteScroll extends Component {
             this.detachScrollListener();
             // Call loadMore after detachScrollListener to allow for non-async loadMore functions
             if (typeof this.props.loadMore == 'function') {
-              setTimeout(() => {
-                this.props.loadMore(this.pageLoaded += 1);
-              }, 10)
+              this.props.loadMore(this.pageLoaded += 1);
             }
         }
     }
