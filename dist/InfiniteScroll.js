@@ -113,10 +113,6 @@ var InfiniteScroll = function (_Component) {
 
             scrollEl.addEventListener('scroll', this.scrollListener);
             scrollEl.addEventListener('resize', this.scrollListener);
-
-            if (this.props.initialLoad) {
-                this.scrollListener();
-            }
         }
     }, {
         key: 'detachScrollListener',
