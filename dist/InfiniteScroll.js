@@ -48,7 +48,9 @@ var InfiniteScroll = function (_Component) {
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-            if (nextProps.children.length > this.props.children.length) {
+            var newItemsCount = nextProps.totalItemsCount || nextProps.children.length;
+            var oldItemsCount = this.props.totalItemsCount || this.props.children.length;
+            if (newItemsCount > oldItemsCount) {
                 this.attachScrollListener();
             }
         }
@@ -65,7 +67,8 @@ var InfiniteScroll = function (_Component) {
                 pageStart = _props.pageStart,
                 threshold = _props.threshold,
                 useWindow = _props.useWindow,
-                props = _objectWithoutProperties(_props, ['children', 'element', 'hasMore', 'initialLoad', 'loader', 'loadMore', 'pageStart', 'threshold', 'useWindow']);
+                totalItemsCount = _props.totalItemsCount,
+                props = _objectWithoutProperties(_props, ['children', 'element', 'hasMore', 'initialLoad', 'loader', 'loadMore', 'pageStart', 'threshold', 'useWindow', 'totalItemsCount']);
 
             return _react2.default.createElement(element, props, children, hasMore && (loader || this._defaultLoader));
         }

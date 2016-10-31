@@ -35,8 +35,10 @@ export default class InfiniteScroll extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.children.length > this.props.children.length) {
-          this.attachScrollListener();
+        const newItemsCount = nextProps.totalItemsCount || nextProps.children.length
+        const oldItemsCount = this.props.totalItemsCount || this.props.children.length
+        if (newItemsCount > oldItemsCount) {
+            this.attachScrollListener();
         }
     }
 
@@ -51,6 +53,7 @@ export default class InfiniteScroll extends Component {
             pageStart,
             threshold,
             useWindow,
+            totalItemsCount,
             ...props
         } = this.props;
 
