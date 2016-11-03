@@ -53,7 +53,7 @@ var InfiniteScroll = function (_Component) {
             if (newItemsCount > oldItemsCount) {
                 this.attachScrollListener();
             }
-            if (nextProps.resetPage) this.pageLoaded = this.props.pageStart;
+            if (nextProps.resetPageLoader && !this.props.resetPageLoader) this.pageLoaded = this.props.pageStart;
         }
     }, {
         key: 'render',
@@ -155,7 +155,7 @@ InfiniteScroll.propTypes = {
     pageStart: _react.PropTypes.number,
     threshold: _react.PropTypes.number,
     useWindow: _react.PropTypes.bool,
-    resetPage: _react.PropTypes.bool
+    resetPageLoader: _react.PropTypes.bool
 };
 InfiniteScroll.defaultProps = {
     element: 'div',
@@ -164,6 +164,6 @@ InfiniteScroll.defaultProps = {
     pageStart: 0,
     threshold: 250,
     useWindow: true,
-    resetPage: false
+    resetPageLoader: false
 };
 exports.default = InfiniteScroll;

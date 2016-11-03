@@ -10,7 +10,7 @@ export default class InfiniteScroll extends Component {
         pageStart: PropTypes.number,
         threshold: PropTypes.number,
         useWindow: PropTypes.bool,
-        resetPage: PropTypes.bool
+        resetPageLoader: PropTypes.bool
     };
 
     static defaultProps = {
@@ -20,7 +20,7 @@ export default class InfiniteScroll extends Component {
         pageStart: 0,
         threshold: 250,
         useWindow: true,
-        resetPage: false
+        resetPageLoader: false
     };
 
     constructor(props) {
@@ -42,7 +42,7 @@ export default class InfiniteScroll extends Component {
         if (newItemsCount > oldItemsCount) {
             this.attachScrollListener();
         }
-        if (nextProps.resetPage) this.pageLoaded = this.props.pageStart;
+        if (nextProps.resetPageLoader && !this.props.resetPageLoader) this.pageLoaded = this.props.pageStart;
     }
 
     render() {
