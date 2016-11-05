@@ -69,7 +69,8 @@ var InfiniteScroll = function (_Component) {
                 threshold = _props.threshold,
                 useWindow = _props.useWindow,
                 totalItemsCount = _props.totalItemsCount,
-                props = _objectWithoutProperties(_props, ['children', 'element', 'hasMore', 'initialLoad', 'loader', 'loadMore', 'pageStart', 'threshold', 'useWindow', 'totalItemsCount']);
+                resetPageLoader = _props.resetPageLoader,
+                props = _objectWithoutProperties(_props, ['children', 'element', 'hasMore', 'initialLoad', 'loader', 'loadMore', 'pageStart', 'threshold', 'useWindow', 'totalItemsCount', 'resetPageLoader']);
 
             return _react2.default.createElement(element, props, children, hasMore && (loader || this._defaultLoader));
         }

@@ -57,6 +57,7 @@ export default class InfiniteScroll extends Component {
             threshold,
             useWindow,
             totalItemsCount,
+            resetPageLoader,
             ...props
         } = this.props;
 
