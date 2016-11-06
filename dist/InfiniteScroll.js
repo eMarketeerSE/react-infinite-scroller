@@ -41,7 +41,7 @@ var InfiniteScroll = function (_Component) {
         key: 'componentDidMount',
         value: function componentDidMount() {
             this.pageLoaded = this.props.pageStart;
-            this.attachScrollListener();
+            if (this.props.hasMore) this.attachScrollListener();
             if (this.props.initialLoad) {
                 this.props.loadMore(this.pageLoaded);
             }
@@ -51,10 +51,13 @@ var InfiniteScroll = function (_Component) {
         value: function componentWillReceiveProps(nextProps) {
             var newItemsCount = nextProps.totalItemsCount || nextProps.children.length;
             var oldItemsCount = this.props.totalItemsCount || this.props.children.length;
-            if ((newItemsCount !== oldItemsCount || nextProps.hasMore) && !this.attachedScroller) {
+            if (newItemsCount !== oldItemsCount || nextProps.hasMore) {
                 this.attachScrollListener();
             }
-            if (nextProps.resetPageLoader && !this.props.resetPageLoader) this.pageLoaded = this.props.pageStart;
+            if (nextProps.resetPageLoader && !this.props.resetPageLoader) {
+                this.attachScrollListener();
+                this.pageLoaded = this.props.pageStart;
+            }
         }
     }, {
         key: 'render',
@@ -108,9 +111,8 @@ var InfiniteScroll = function (_Component) {
     }, {
         key: 'attachScrollListener',
         value: function attachScrollListener() {
-            if (!this.props.hasMore && !this.props.resetPageLoader) {
-                return;
-            }
+            if (this.attachedScroller) return;
+
             this.attachedScroller = true;
             var scrollEl = window;
             if (this.props.useWindow == false) {
