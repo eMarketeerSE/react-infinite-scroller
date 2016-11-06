@@ -32,6 +32,7 @@ var InfiniteScroll = function (_Component) {
 
         var _this = _possibleConstructorReturn(this, (InfiniteScroll.__proto__ || Object.getPrototypeOf(InfiniteScroll)).call(this, props));
 
+        _this.attachedScroller = false;
         _this.scrollListener = _this.scrollListener.bind(_this);
         return _this;
     }
@@ -40,7 +41,7 @@ var InfiniteScroll = function (_Component) {
         key: 'componentDidMount',
         value: function componentDidMount() {
             this.pageLoaded = this.props.pageStart;
-            this.attachScrollListener();
+            if (this.props.hasMore) this.attachScrollListener();
             if (this.props.initialLoad) {
                 this.props.loadMore(this.pageLoaded);
             }
@@ -53,7 +54,10 @@ var InfiniteScroll = function (_Component) {
             if (newItemsCount !== oldItemsCount || nextProps.hasMore) {
                 this.attachScrollListener();
             }
-            if (nextProps.resetPageLoader && !this.props.resetPageLoader) this.pageLoaded = this.props.pageStart;
+            if (nextProps.resetPageLoader && !this.props.resetPageLoader) {
+                this.attachScrollListener();
+                this.pageLoaded = this.props.pageStart;
+            }
         }
     }, {
         key: 'render',
@@ -69,7 +73,8 @@ var InfiniteScroll = function (_Component) {
                 threshold = _props.threshold,
                 useWindow = _props.useWindow,
                 totalItemsCount = _props.totalItemsCount,
-                props = _objectWithoutProperties(_props, ['children', 'element', 'hasMore', 'initialLoad', 'loader', 'loadMore', 'pageStart', 'threshold', 'useWindow', 'totalItemsCount']);
+                resetPageLoader = _props.resetPageLoader,
+                props = _objectWithoutProperties(_props, ['children', 'element', 'hasMore', 'initialLoad', 'loader', 'loadMore', 'pageStart', 'threshold', 'useWindow', 'totalItemsCount', 'resetPageLoader']);
 
             return _react2.default.createElement(element, props, children, hasMore && (loader || this._defaultLoader));
         }
@@ -106,10 +111,9 @@ var InfiniteScroll = function (_Component) {
     }, {
         key: 'attachScrollListener',
         value: function attachScrollListener() {
-            if (!this.props.hasMore && !this.props.resetPageLoader) {
-                return;
-            }
+            if (this.attachedScroller) return;
 
+            this.attachedScroller = true;
             var scrollEl = window;
             if (this.props.useWindow == false) {
                 scrollEl = _reactDom2.default.findDOMNode(this).parentNode;
@@ -125,7 +129,7 @@ var InfiniteScroll = function (_Component) {
             if (this.props.useWindow == false) {
                 scrollEl = _reactDom2.default.findDOMNode(this).parentNode;
             }
-
+            this.attachedScroller = false;
             scrollEl.removeEventListener('scroll', this.scrollListener);
             scrollEl.removeEventListener('resize', this.scrollListener);
         }
