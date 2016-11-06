@@ -32,6 +32,7 @@ var InfiniteScroll = function (_Component) {
 
         var _this = _possibleConstructorReturn(this, (InfiniteScroll.__proto__ || Object.getPrototypeOf(InfiniteScroll)).call(this, props));
 
+        _this.attachedScroller = false;
         _this.scrollListener = _this.scrollListener.bind(_this);
         return _this;
     }
@@ -50,7 +51,7 @@ var InfiniteScroll = function (_Component) {
         value: function componentWillReceiveProps(nextProps) {
             var newItemsCount = nextProps.totalItemsCount || nextProps.children.length;
             var oldItemsCount = this.props.totalItemsCount || this.props.children.length;
-            if (newItemsCount !== oldItemsCount || (nextProps.hasMore && !nextProps.hasMore)) {
+            if ((newItemsCount !== oldItemsCount || nextProps.hasMore) && !this.attachedScroller) {
                 this.attachScrollListener();
             }
             if (nextProps.resetPageLoader && !this.props.resetPageLoader) this.pageLoaded = this.props.pageStart;
@@ -110,7 +111,7 @@ var InfiniteScroll = function (_Component) {
             if (!this.props.hasMore && !this.props.resetPageLoader) {
                 return;
             }
-
+            this.attachedScroller = true;
             var scrollEl = window;
             if (this.props.useWindow == false) {
                 scrollEl = _reactDom2.default.findDOMNode(this).parentNode;
@@ -126,7 +127,7 @@ var InfiniteScroll = function (_Component) {
             if (this.props.useWindow == false) {
                 scrollEl = _reactDom2.default.findDOMNode(this).parentNode;
             }
-
+            this.attachedScroller = false;
             scrollEl.removeEventListener('scroll', this.scrollListener);
             scrollEl.removeEventListener('resize', this.scrollListener);
         }

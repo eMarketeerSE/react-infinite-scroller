@@ -25,12 +25,13 @@ export default class InfiniteScroll extends Component {
 
     constructor(props) {
         super(props);
+        this.attachedScroller = false;
         this.scrollListener = this.scrollListener.bind(this);
     }
 
     componentDidMount() {
         this.pageLoaded = this.props.pageStart;
-        this.attachScrollListener();
+        if(this.props.hasMore) this.attachScrollListener();
         if (this.props.initialLoad) {
           this.props.loadMore(this.pageLoaded);
         }
@@ -39,10 +40,13 @@ export default class InfiniteScroll extends Component {
     componentWillReceiveProps(nextProps) {
         const newItemsCount = nextProps.totalItemsCount || nextProps.children.length
         const oldItemsCount = this.props.totalItemsCount || this.props.children.length
-        if (newItemsCount !== oldItemsCount || (nextProps.hasMore && !nextProps.hasMore)) {
+        if (newItemsCount !== oldItemsCount || nextProps.hasMore) {
             this.attachScrollListener();
         }
-        if (nextProps.resetPageLoader && !this.props.resetPageLoader) this.pageLoaded = this.props.pageStart;
+        if (nextProps.resetPageLoader && !this.props.resetPageLoader ) {
+            this.attachScrollListener();
+            this.pageLoaded = this.props.pageStart;
+        }
     }
 
     render() {
@@ -93,10 +97,9 @@ export default class InfiniteScroll extends Component {
     }
 
     attachScrollListener() {
-        if(!this.props.hasMore && !this.props.resetPageLoader) {
-            return;
-        }
+        if (this.attachedScroller) return
 
+        this.attachedScroller = true;
         let scrollEl = window;
         if(this.props.useWindow == false) {
             scrollEl = ReactDOM.findDOMNode(this).parentNode;
@@ -111,7 +114,7 @@ export default class InfiniteScroll extends Component {
         if(this.props.useWindow == false) {
             scrollEl = ReactDOM.findDOMNode(this).parentNode;
         }
-
+        this.attachedScroller = false;
         scrollEl.removeEventListener('scroll', this.scrollListener);
         scrollEl.removeEventListener('resize', this.scrollListener);
     }
