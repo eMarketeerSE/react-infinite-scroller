@@ -101,11 +101,12 @@ var InfiniteScroll = function (_Component) {
             }
 
             if (offset < Number(this.props.threshold)) {
-                this.detachScrollListener();
-                // Call loadMore after detachScrollListener to allow for non-async loadMore functions
                 if (typeof this.props.loadMore == 'function') {
                     this.props.loadMore(this.pageLoaded += 1);
                 }
+                // Call loadMore after detachScrollListener to allow for non-async loadMore functions to run
+                // I changed the location of the detachScrollListener because loadMore called twice
+                this.detachScrollListener();
             }
         }
     }, {
