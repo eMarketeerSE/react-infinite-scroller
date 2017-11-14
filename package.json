@@ -1,6 +1,6 @@
 {
   "name": "react-infinite-scroll-container",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Infinite scroll component for React in ES6",
   "main": "dist/InfiniteScroll.js",
   "jsnext:main": "src/InfiniteScroll.js",
@@ -33,6 +33,7 @@
   },
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.1",
-    "react-dom": "^0.14.0 || ^15.0.1"
+    "react-dom": "^0.14.0 || ^15.0.1",
+    "prop-types": "^15.6.0"
   }
 }
