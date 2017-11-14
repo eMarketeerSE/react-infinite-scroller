@@ -14,6 +14,10 @@ var _reactDom = require('react-dom');
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
@@ -153,14 +157,14 @@ var InfiniteScroll = function (_Component) {
 }(_react.Component);
 
 InfiniteScroll.propTypes = {
-    element: _react.PropTypes.string,
-    hasMore: _react.PropTypes.bool,
-    initialLoad: _react.PropTypes.bool,
-    loadMore: _react.PropTypes.func.isRequired,
-    pageStart: _react.PropTypes.number,
-    threshold: _react.PropTypes.number,
-    useWindow: _react.PropTypes.bool,
-    resetPageLoader: _react.PropTypes.bool
+    element: _propTypes2.default.string,
+    hasMore: _propTypes2.default.bool,
+    initialLoad: _propTypes2.default.bool,
+    loadMore: _propTypes2.default.func.isRequired,
+    pageStart: _propTypes2.default.number,
+    threshold: _propTypes2.default.number,
+    useWindow: _propTypes2.default.bool,
+    resetPageLoader: _propTypes2.default.bool
 };
 InfiniteScroll.defaultProps = {
     element: 'div',
@@ -172,3 +176,4 @@ InfiniteScroll.defaultProps = {
     resetPageLoader: false
 };
 exports.default = InfiniteScroll;
+module.exports = exports['default'];
