@@ -53,8 +53,10 @@ var InfiniteScroll = function (_Component) {
     }, {
         key: 'componentWillReceiveProps',
         value: function componentWillReceiveProps(nextProps) {
-            var newItemsCount = nextProps.totalItemsCount || nextProps.children.length;
-            var oldItemsCount = this.props.totalItemsCount || this.props.children.length;
+            var nextChildrenLength = nextProps.children ? nextProps.children.length : null;
+            var currentChildrenLength = this.props.children ? this.props.children.length : null;
+            var newItemsCount = nextProps.totalItemsCount || nextChildrenLength;
+            var oldItemsCount = this.props.totalItemsCount || currentChildrenLength;
             if (newItemsCount !== oldItemsCount || nextProps.hasMore) {
                 this.attachScrollListener();
             }

@@ -39,8 +39,10 @@ export default class InfiniteScroll extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        const newItemsCount = nextProps.totalItemsCount || nextProps.children.length
-        const oldItemsCount = this.props.totalItemsCount || this.props.children.length
+        const nextChildrenLength = nextProps.children ? nextProps.children.length : null
+        const currentChildrenLength = this.props.children ? this.props.children.length : null
+        const newItemsCount = nextProps.totalItemsCount || nextChildrenLength
+        const oldItemsCount = this.props.totalItemsCount || currentChildrenLength
         if (newItemsCount !== oldItemsCount || nextProps.hasMore) {
             this.attachScrollListener();
         }
