@@ -11,7 +11,8 @@ export default class InfiniteScroll extends Component {
         pageStart: PropTypes.number,
         threshold: PropTypes.number,
         useWindow: PropTypes.bool,
-        resetPageLoader: PropTypes.bool
+        resetPageLoader: PropTypes.bool,
+        lockListener: PropTypes.bool
     };
 
     static defaultProps = {
@@ -21,7 +22,8 @@ export default class InfiniteScroll extends Component {
         pageStart: 0,
         threshold: 250,
         useWindow: true,
-        resetPageLoader: false
+        resetPageLoader: false,
+        lockListener: false
     };
 
     constructor(props) {
@@ -32,7 +34,7 @@ export default class InfiniteScroll extends Component {
 
     componentDidMount() {
         this.pageLoaded = this.props.pageStart;
-        if(this.props.hasMore) this.attachScrollListener();
+        if(this.props.hasMore && !this.props.lockListener) this.attachScrollListener();
         if (this.props.initialLoad) {
           this.props.loadMore(this.pageLoaded);
         }
@@ -43,12 +45,16 @@ export default class InfiniteScroll extends Component {
         const currentChildrenLength = this.props.children ? this.props.children.length : null
         const newItemsCount = nextProps.totalItemsCount || nextChildrenLength
         const oldItemsCount = this.props.totalItemsCount || currentChildrenLength
-        if (newItemsCount !== oldItemsCount || nextProps.hasMore) {
-            this.attachScrollListener();
-        }
-        if (nextProps.resetPageLoader && !this.props.resetPageLoader ) {
-            this.attachScrollListener();
-            this.pageLoaded = this.props.pageStart;
+        if (nextProps.lockListener) {
+            this.detachScrollListener();
+        } else {
+            if (newItemsCount !== oldItemsCount || nextProps.hasMore) {
+                this.attachScrollListener();
+            }
+            if (nextProps.resetPageLoader && !this.props.resetPageLoader ) {
+                this.attachScrollListener();
+                this.pageLoaded = this.props.pageStart;
+            }
         }
     }
 
@@ -65,6 +71,7 @@ export default class InfiniteScroll extends Component {
             useWindow,
             totalItemsCount,
             resetPageLoader,
+            lockListener,
             ...props
         } = this.props;
 
@@ -114,6 +121,7 @@ export default class InfiniteScroll extends Component {
     }
 
     detachScrollListener() {
+        if (!this.attachedScroller) return
         var scrollEl = window;
         if(this.props.useWindow == false) {
             scrollEl = ReactDOM.findDOMNode(this).parentNode;
