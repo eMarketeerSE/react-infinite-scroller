@@ -1,61 +1,177 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
-export default class InfiniteScroll extends Component {
+export class InfiniteScroll extends Component {
     static propTypes = {
+        children: PropTypes.oneOfType([PropTypes.object, PropTypes.array])
+            .isRequired,
         element: PropTypes.string,
+        parentElementSelector: PropTypes.string,
         hasMore: PropTypes.bool,
         initialLoad: PropTypes.bool,
+        isReverse: PropTypes.bool,
+        loader: PropTypes.object,
         loadMore: PropTypes.func.isRequired,
         pageStart: PropTypes.number,
+        ref: PropTypes.func,
         threshold: PropTypes.number,
+        useCapture: PropTypes.bool,
         useWindow: PropTypes.bool,
-        resetPageLoader: PropTypes.bool,
-        lockListener: PropTypes.bool
-    };
+    }
 
     static defaultProps = {
         element: 'div',
         hasMore: false,
         initialLoad: true,
         pageStart: 0,
+        ref: null,
         threshold: 250,
         useWindow: true,
-        resetPageLoader: false,
-        lockListener: false
-    };
+        isReverse: false,
+        useCapture: false,
+        loader: null,
+    }
 
     constructor(props) {
-        super(props);
-        this.attachedScroller = false;
-        this.scrollListener = this.scrollListener.bind(this);
+        super(props)
+
+        this.scrollListener = this.scrollListener.bind(this)
     }
 
     componentDidMount() {
-        this.pageLoaded = this.props.pageStart;
-        if(this.props.hasMore && !this.props.lockListener) this.attachScrollListener();
+        this.pageLoaded = this.props.pageStart
+        this.attachScrollListener()
+    }
+
+    componentDidUpdate() {
+        this.attachScrollListener()
+    }
+
+    componentWillUnmount() {
+        this.detachScrollListener()
+        this.detachMousewheelListener()
+    }
+
+    getScrollElement = () =>
+        this.props.parentElementSelector ?
+            document.querySelector(this.props.parentElementSelector) :
+            this.scrollComponent.parentNode
+
+    // Set a defaut loader for all your `InfiniteScroll` components
+    setDefaultLoader(loader) {
+        this.defaultLoader = loader
+    }
+
+    detachMousewheelListener() {
+        let scrollEl = window
+        if (this.props.useWindow === false) {
+            scrollEl = this.scrollComponent.parentNode
+        }
+
+        scrollEl.removeEventListener(
+            'mousewheel',
+            this.mousewheelListener,
+            this.props.useCapture,
+        )
+    }
+
+    detachScrollListener() {
+        let scrollEl = window
+        if (this.props.useWindow === false) {
+            scrollEl = this.scrollComponent.parentNode
+        }
+
+        scrollEl.removeEventListener(
+            'scroll',
+            this.scrollListener,
+            this.props.useCapture,
+        )
+        scrollEl.removeEventListener(
+            'resize',
+            this.scrollListener,
+            this.props.useCapture,
+        )
+    }
+
+    attachScrollListener() {
+        if (!this.props.hasMore) {
+            return
+        }
+
+        let scrollEl = window
+        if (this.props.useWindow === false) {
+            scrollEl = this.getScrollElement()
+        }
+
+        scrollEl.addEventListener(
+            'mousewheel',
+            this.mousewheelListener,
+            this.props.useCapture,
+        )
+        scrollEl.addEventListener(
+            'scroll',
+            this.scrollListener,
+            this.props.useCapture,
+        )
+        scrollEl.addEventListener(
+            'resize',
+            this.scrollListener,
+            this.props.useCapture,
+        )
+
         if (this.props.initialLoad) {
-          this.props.loadMore(this.pageLoaded);
+            this.scrollListener()
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        const nextChildrenLength = nextProps.children ? nextProps.children.length : null
-        const currentChildrenLength = this.props.children ? this.props.children.length : null
-        const newItemsCount = nextProps.totalItemsCount || nextChildrenLength
-        const oldItemsCount = this.props.totalItemsCount || currentChildrenLength
-        if (nextProps.lockListener) {
-            this.detachScrollListener();
-        } else {
-            if (newItemsCount !== oldItemsCount || nextProps.hasMore) {
-                this.attachScrollListener();
+    mousewheelListener(e) {
+        // Prevents Chrome hangups
+        // See: https://stackoverflow.com/questions/47524205/random-high-content-download-time-in-chrome/47684257#47684257
+        if (e.deltaY === 1) {
+            e.preventDefault()
+        }
+    }
+
+    scrollListener() {
+        const el = this.scrollComponent
+        const scrollEl = window
+
+        let offset
+        if (this.props.useWindow) {
+            const doc =
+                document.documentElement || document.body.parentNode || document.body
+            const scrollTop =
+                scrollEl.pageYOffset !== undefined
+                    ? scrollEl.pageYOffset
+                    : doc.scrollTop
+            if (this.props.isReverse) {
+                offset = scrollTop
+            } else {
+                offset =
+                    this.calculateTopPosition(el) +
+                    (el.offsetHeight - scrollTop - window.innerHeight)
             }
-            if (nextProps.resetPageLoader && !this.props.resetPageLoader ) {
-                this.attachScrollListener();
-                this.pageLoaded = this.props.pageStart;
+        } else if (this.props.isReverse) {
+            offset = el.parentNode.scrollTop
+        } else {
+            const parent = this.getScrollElement()
+            offset = el.scrollHeight - parent.scrollTop - parent.clientHeight
+        }
+
+        if (offset < Number(this.props.threshold)) {
+            this.detachScrollListener()
+            // Call loadMore after detachScrollListener to allow for non-async loadMore functions
+            if (typeof this.props.loadMore === 'function') {
+                this.props.loadMore((this.pageLoaded += 1))
             }
         }
+    }
+
+    calculateTopPosition(el) {
+        if (!el) {
+            return 0
+        }
+        return el.offsetTop + this.calculateTopPosition(el.offsetParent)
     }
 
     render() {
@@ -64,79 +180,35 @@ export default class InfiniteScroll extends Component {
             element,
             hasMore,
             initialLoad,
+            isReverse,
             loader,
             loadMore,
             pageStart,
+            ref,
             threshold,
+            useCapture,
             useWindow,
-            totalItemsCount,
-            resetPageLoader,
-            lockListener,
+            parentElementSelector,
             ...props
-        } = this.props;
+        } = this.props
 
-        return React.createElement(element, props, children, hasMore && (loader || this._defaultLoader));
-    }
-
-    calculateTopPosition(el) {
-        if(!el) {
-            return 0;
-        }
-        return el.offsetTop + this.calculateTopPosition(el.offsetParent);
-    }
-
-    scrollListener() {
-        const el = ReactDOM.findDOMNode(this);
-        const scrollEl = window;
-
-        let offset;
-        if(this.props.useWindow) {
-            var scrollTop = (scrollEl.pageYOffset !== undefined) ? scrollEl.pageYOffset : (document.documentElement || document.body.parentNode || document.body).scrollTop;
-            offset = this.calculateTopPosition(el) + el.offsetHeight - scrollTop - window.innerHeight;
-        } else {
-            offset = el.scrollHeight - el.parentNode.scrollTop - el.parentNode.clientHeight;
-        }
-
-        if(offset < Number(this.props.threshold)) {
-            if (typeof this.props.loadMore == 'function') {
-              this.props.loadMore(this.pageLoaded += 1);
+        props.ref = node => {
+            this.scrollComponent = node
+            if (ref) {
+                ref(node)
             }
-            // Call loadMore after detachScrollListener to allow for non-async loadMore functions to run
-            // I changed the location of the detachScrollListener because loadMore called twice
-            this.detachScrollListener();
-        }
-    }
-
-    attachScrollListener() {
-        if (this.attachedScroller) return
-
-        this.attachedScroller = true;
-        let scrollEl = window;
-        if(this.props.useWindow == false) {
-            scrollEl = ReactDOM.findDOMNode(this).parentNode;
         }
 
-        scrollEl.addEventListener('scroll', this.scrollListener);
-        scrollEl.addEventListener('resize', this.scrollListener);
-    }
-
-    detachScrollListener() {
-        if (!this.attachedScroller) return
-        var scrollEl = window;
-        if(this.props.useWindow == false) {
-            scrollEl = ReactDOM.findDOMNode(this).parentNode;
+        const childrenArray = [children]
+        if (hasMore) {
+            if (loader) {
+                isReverse ? childrenArray.unshift(loader) : childrenArray.push(loader)
+            } else if (this.defaultLoader) {
+                isReverse
+                    ? childrenArray.unshift(this.defaultLoader)
+                    : childrenArray.push(this.defaultLoader)
+            }
         }
-        this.attachedScroller = false;
-        scrollEl.removeEventListener('scroll', this.scrollListener);
-        scrollEl.removeEventListener('resize', this.scrollListener);
-    }
-
-    componentWillUnmount() {
-        this.detachScrollListener();
-    }
-
-    // Set a defaut loader for all your `InfiniteScroll` components
-    setDefaultLoader(loader) {
-        this._defaultLoader = loader;
+        return React.createElement(element, props, childrenArray)
     }
 }
